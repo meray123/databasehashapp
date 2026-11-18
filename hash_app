@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+import sys
+
+
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: hash_app <n> <s>")
+        sys.exit(1)
+
+    try:
+        number_of_buckets = int(sys.argv[1])
+        max_characters_per_file = int(sys.argv[2])
+    except ValueError:
+        print("Both n and s must be whole numbers.")
+        sys.exit(1)
+
+    while True:
+        try:
+            user_text = input("Please enter the string: ")
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+
+        if user_text == "":
+            continue
+
+        print(f"(hashing not implemented yet) got: {user_text}")
+
+
+if __name__ == "__main__":
+    main()
