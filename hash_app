@@ -3,6 +3,16 @@
 import sys
 
 
+def hash_text(text):
+    hash_value = 14695981039346656037
+
+    for character in text.encode("utf-8"):
+        hash_value = hash_value ^ character
+        hash_value = (hash_value * 1099511628211) % (2 ** 64)
+
+    return hash_value
+
+
 def main():
     if len(sys.argv) != 3:
         print("Usage: hash_app <n> <s>")
@@ -15,6 +25,10 @@ def main():
         print("Both n and s must be whole numbers.")
         sys.exit(1)
 
+    if number_of_buckets <= 0 or max_characters_per_file <= 0:
+        print("Both n and s must be positive numbers.")
+        sys.exit(1)
+
     while True:
         try:
             user_text = input("Please enter the string: ")
@@ -25,7 +39,15 @@ def main():
         if user_text == "":
             continue
 
-        print(f"(hashing not implemented yet) got: {user_text}")
+        hash_value = hash_text(user_text)
+        bucket_number = (hash_value % number_of_buckets) + 1
+
+        file_name = str(bucket_number) + ".txt"
+
+        with open(file_name, "a", encoding="utf-8") as bucket_file:
+            bucket_file.write(user_text)
+
+        print(f"{user_text} added to {file_name}")
 
 
 if __name__ == "__main__":
