@@ -13,6 +13,46 @@ def hash_text(text):
     return hash_value
 
 
+def get_file_length(file_name):
+    try:
+        with open(file_name, "r", encoding="utf-8") as bucket_file:
+            return len(bucket_file.read())
+    except FileNotFoundError:
+        return 0
+
+
+def save_text(bucket_number, user_text, max_characters_per_file):
+    file_name = str(bucket_number) + ".txt"
+    index_file = str(bucket_number) + "_index.txt"
+
+    overflow_number = 0
+
+    try:
+        with open(index_file, "r", encoding="utf-8") as index:
+            overflow_number = int(index.read())
+    except FileNotFoundError:
+        pass
+
+    if overflow_number == 0:
+        last_file = file_name
+    else:
+        last_file = str(bucket_number) + "_" + str(overflow_number) + ".txt"
+
+    current_length = get_file_length(last_file)
+
+    if current_length + len(user_text) > max_characters_per_file:
+        overflow_number += 1
+        last_file = str(bucket_number) + "_" + str(overflow_number) + ".txt"
+
+        with open(index_file, "w", encoding="utf-8") as index:
+            index.write(str(overflow_number))
+
+    with open(last_file, "a", encoding="utf-8") as bucket_file:
+        bucket_file.write(user_text)
+
+    return last_file
+
+
 def main():
     if len(sys.argv) != 3:
         print("Usage: hash_app <n> <s>")
@@ -39,13 +79,18 @@ def main():
         if user_text == "":
             continue
 
+        if len(user_text) > max_characters_per_file:
+            print("The string is longer than the maximum bucket size.")
+            continue
+
         hash_value = hash_text(user_text)
         bucket_number = (hash_value % number_of_buckets) + 1
 
-        file_name = str(bucket_number) + ".txt"
-
-        with open(file_name, "a", encoding="utf-8") as bucket_file:
-            bucket_file.write(user_text)
+        file_name = save_text(
+            bucket_number,
+            user_text,
+            max_characters_per_file
+        )
 
         print(f"{user_text} added to {file_name}")
 
